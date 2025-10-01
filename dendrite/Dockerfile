@@ -1,20 +1,34 @@
-ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base:3.17
-FROM $BUILD_FROM
+# Stage 1: Build Dendrite
+FROM golang:1.24-alpine AS builder
 
 # Install dependencies
-RUN apk add --no-cache go git bash
+RUN apk add --no-cache git bash
 
-# Build dendrite
-WORKDIR /dendrite
-RUN git clone https://github.com/matrix-org/dendrite.git . && \
-    go build -o /usr/bin/dendrite-monolith-server ./cmd/dendrite-monolith-server && \
-    go build -o /usr/bin/generate-keys ./cmd/generate-keys && \
-    go build -o /usr/bin/create-account ./cmd/create-account
+# Set workdir
+WORKDIR /src
 
-# Copy runtime files
-COPY run.sh /run.sh
-COPY dendrite.yaml.template /etc/dendrite/dendrite.yaml.template
+# Clone Dendrite source
+RUN git clone https://github.com/matrix-org/dendrite.git .
 
-RUN chmod +x /run.sh
+# Build the binaries
+RUN go build -o /usr/bin/dendrite-monolith-server ./cmd/dendrite-monolith-server
+RUN go build -o /usr/bin/generate-keys ./cmd/generate-keys
+RUN go build -o /usr/bin/create-account ./cmd/create-account
 
-CMD [ "/run.sh" ]
+# Stage 2: Final image
+FROM alpine:3.18
+
+# Install runtime dependencies
+RUN apk add --no-cache ca-certificates bash
+
+# Copy binaries
+COPY --from=builder /usr/bin/dendrite-monolith-server /usr/bin/dendrite-monolith-server
+COPY --from=builder /usr/bin/generate-keys /usr/bin/generate-keys
+COPY --from=builder /usr/bin/create-account /usr/bin/create-account
+
+# Create directories
+RUN mkdir -p /data /data/jetstream /data/media_store /data/logs
+
+WORKDIR /data
+
+ENTRYPOINT ["/usr/bin/dendrite-monolith-server"]
