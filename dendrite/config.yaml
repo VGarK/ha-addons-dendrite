@@ -1,23 +1,25 @@
 name: Dendrite Matrix Server
 version: "0.1.0"
 slug: dendrite
-description: Lightweight Matrix homeserver (Dendrite) for Home Assistant
-url: https://matrix.org/docs/projects/server/dendrite
+description: "Lightweight Matrix server (Dendrite) add-on"
+url: https://github.com/VGarK/ha-addons-dendrite
 arch:
   - amd64
   - aarch64
 startup: services
 boot: auto
+image: ghcr.io/VGarK/ha-addons-dendrite/dendrite-{arch}:latest
 ports:
-  8008/tcp: 8008
-  8448/tcp: 8448
+  - 8008/tcp
+  - 8448/tcp
 map:
   - config:rw
 options:
-  server_name: "chat.example.com"
-  enable_registration: true
+  server_name: ""
+  enable_registration: false
   registration_shared_secret: "changeme"
 schema:
   server_name: str
   enable_registration: bool
-  registration_shared_secret: str
+  registration_shared_secret: str?
+

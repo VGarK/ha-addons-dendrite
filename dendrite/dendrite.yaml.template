@@ -1,0 +1,10 @@
+version: 2
+global:
+  server_name: __SERVER_NAME__
+  private_key: __PRIVATE_KEY_PATH__
+
+media_api:
+  base_path: /data/media
+
+client_api:
+  registration_disabled: false
