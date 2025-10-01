@@ -30,12 +30,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Build and push Docker images
         uses: docker/build-push-action@v4
         with:
           context: ./dendrite
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: |
-            ghcr.io/vgark/ha-addons-dendrite/dendrite-amd64:latest
-            ghcr.io/vgark/ha-addons-dendrite/dendrite-arm64:latest
+          build-args: |
+            ARCH=amd64
+          tags: ghcr.io/vgark/ha-addons-dendrite/dendrite-amd64:latest
+
+      - name: Build and push ARM image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./dendrite
+          push: true
+          platforms: linux/arm64
+          build-args: |
+            ARCH=arm64
+          tags: ghcr.io/vgark/ha-addons-dendrite/dendrite-arm64:latest
