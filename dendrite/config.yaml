@@ -8,7 +8,7 @@ arch:
   - aarch64
 startup: services
 boot: auto
-image: ghcr.io/vgark/ha-addons-dendrite/dendrite-{arch}:latest
+image: matrixdotorg/dendrite:v0.11.2  # <- prebuilt image
 ports:
   - 8008/tcp
   - 8448/tcp
@@ -16,12 +16,13 @@ map:
   - config:rw
 options:
   server_name: ""
-  enable_registration: false
+  enable_registration: true
   registration_shared_secret: ""
 schema:
   server_name: str
   enable_registration: bool
   registration_shared_secret: str?
+
 
 
 
