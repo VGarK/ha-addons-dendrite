@@ -2,7 +2,7 @@ name: Dendrite Matrix Server
 version: "0.1.0"
 slug: dendrite
 description: "Lightweight Matrix server (Dendrite) add-on"
-url: https://github.com/VGarK/ha-addons-dendrite
+url: https://github.com/vgark/ha-addons-dendrite
 arch:
   - amd64
   - aarch64
@@ -22,5 +22,6 @@ schema:
   server_name: str
   enable_registration: bool
   registration_shared_secret: str?
+
 
 
