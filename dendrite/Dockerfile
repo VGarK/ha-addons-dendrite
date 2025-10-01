@@ -1,33 +1,17 @@
-# Stage 1: Build Dendrite
-FROM golang:1.24-bullseye AS builder
+FROM alpine:3.18
 
-# Install dependencies
-RUN apt-get update && apt-get install -y git bash ca-certificates && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /src
-
-# Clone Dendrite
-RUN git clone https://github.com/matrix-org/dendrite.git .
-
-# Build binaries
-RUN go build -o /usr/bin/dendrite-monolith-server ./cmd/dendrite-monolith-server
-RUN go build -o /usr/bin/generate-keys ./cmd/generate-keys
-RUN go build -o /usr/bin/create-account ./cmd/create-account
-
-# Stage 2: Runtime image
-FROM debian:bullseye-slim
-
-# Install runtime dependencies
-RUN apt-get update && apt-get install -y ca-certificates bash && rm -rf /var/lib/apt/lists/*
-
-# Copy binaries
-COPY --from=builder /usr/bin/dendrite-monolith-server /usr/bin/dendrite-monolith-server
-COPY --from=builder /usr/bin/generate-keys /usr/bin/generate-keys
-COPY --from=builder /usr/bin/create-account /usr/bin/create-account
-
-# Create necessary directories
-RUN mkdir -p /data /data/jetstream /data/media_store /data/logs
+RUN apk add --no-cache ca-certificates bash wget
 
 WORKDIR /data
+
+# Download prebuilt Dendrite binary
+RUN wget -O /usr/bin/dendrite-monolith-server https://github.com/matrix-org/dendrite/releases/download/v0.11.2/dendrite-monolith-server-linux-arm64 \
+    && chmod +x /usr/bin/dendrite-monolith-server
+
+# Also add dummy scripts for create-account & generate-keys if needed
+COPY generate-keys /usr/bin/generate-keys
+COPY create-account /usr/bin/create-account
+
+RUN mkdir -p /data/jetstream /data/media_store /data/logs
 
 ENTRYPOINT ["/usr/bin/dendrite-monolith-server"]
