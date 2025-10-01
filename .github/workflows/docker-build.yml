@@ -34,5 +34,5 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            ghcr.io/${{ env.REPO_OWNER,, }}/ha-addons-dendrite/dendrite-amd64:latest
-            ghcr.io/${{ env.REPO_OWNER,, }}/ha-addons-dendrite/dendrite-arm64:latest
+            ghcr.io/${{ toLower(env.REPO_OWNER) }}/ha-addons-dendrite/dendrite-amd64:latest
+            ghcr.io/${{ toLower(env.REPO_OWNER) }}/ha-addons-dendrite/dendrite-arm64:latest
