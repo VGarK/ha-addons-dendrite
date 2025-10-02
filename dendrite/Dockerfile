@@ -1,29 +1,40 @@
 # dendrite/Dockerfile
-ARG BUILD_FROM
-# Stage 1: get compiled Dendrite binary from upstream image
+ARG BUILD_FROM=ghcr.io/home-assistant/amd64-base:latest
 FROM matrixdotorg/dendrite-monolith:latest AS dendrite_src
 
-# Stage 2: Home Assistant add-on base image (bashio, s6, etc)
-FROM ${BUILD_FROM}
+FROM ${BUILD_FROM} AS final
 
 USER root
 
-# Copy the monolith binary from upstream (path used by upstream image)
-# If upstream image changes path, adjust this path accordingly.
-COPY --from=dendrite_src /usr/bin/dendrite-monolith-server /usr/local/bin/dendrite-monolith-server
-RUN chmod +x /usr/local/bin/dendrite-monolith-server || true
+# Copy whole upstream FS to staging so we can pick binaries regardless of exact path
+COPY --from=dendrite_src / /staging
 
-# Provide a place for template & runtime files
-RUN mkdir -p /etc/dendrite /data /data/media_store /data/jetstream /data/logs
+# Pick the binary from likely locations and install to /usr/local/bin/dendrite
+RUN set -eux; \
+    mkdir -p /usr/local/bin /data /data/media_store /data/jetstream /data/logs; \
+    if [ -f /staging/usr/bin/dendrite-monolith-server ]; then \
+      cp /staging/usr/bin/dendrite-monolith-server /usr/local/bin/dendrite; \
+    elif [ -f /staging/usr/bin/dendrite ]; then \
+      cp /staging/usr/bin/dendrite /usr/local/bin/dendrite; \
+    elif [ -f /staging/usr/local/bin/dendrite-monolith-server ]; then \
+      cp /staging/usr/local/bin/dendrite-monolith-server /usr/local/bin/dendrite; \
+    elif [ -f /staging/out/dendrite-monolith-server ]; then \
+      cp /staging/out/dendrite-monolith-server /usr/local/bin/dendrite; \
+    else \
+      echo "ERROR: dendrite binary not found in upstream image (checked several paths)" >&2; \
+      echo "Staging contents (top-level):" >&2; ls -la /staging | sed -n '1,200p' >&2; \
+      exit 1; \
+    fi; \
+    chmod +x /usr/local/bin/dendrite
 
-# Add our run script and template
+# Copy run script and template (will be used by HA add-on)
 COPY run.sh /run.sh
 COPY dendrite.yaml.template /etc/dendrite/dendrite.yaml.template
 
-RUN chmod a+x /run.sh
+RUN chmod +x /run.sh || true
 
 WORKDIR /data
 
-# The add-on run script will launch the binary
 ENTRYPOINT [ "/run.sh" ]
 CMD []
+

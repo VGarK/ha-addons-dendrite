@@ -14,7 +14,3 @@ media_api:
 logging:
   - type: std
     level: info
-  - type: file
-    level: info
-    params:
-      path: logs

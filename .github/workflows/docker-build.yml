@@ -1,4 +1,4 @@
-name: Build and push add-on images
+name: Build & publish add-on images
 
 on:
   push:
@@ -13,8 +13,7 @@ jobs:
   build-amd64:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -22,7 +21,7 @@ jobs:
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Login to GHCR
+      - name: Log in to GHCR
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
@@ -45,8 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-amd64
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -54,7 +52,7 @@ jobs:
       - name: Set up Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Login to GHCR
+      - name: Log in to GHCR
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
@@ -72,3 +70,4 @@ jobs:
             BUILD_FROM=ghcr.io/home-assistant/arm64-base:latest
           tags: |
             ghcr.io/vgark/ha-addons-dendrite/dendrite-arm64:latest
+k/ha-addons-dendrite/dendrite-arm64:latest
