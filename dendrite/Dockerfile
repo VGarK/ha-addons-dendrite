@@ -1,22 +1,14 @@
-# ===== Build image using prebuilt Dendrite binary =====
-ARG ARCH=amd64
-FROM alpine:3.18
+# Use the official Dendrite image as base (wrapper)
+FROM matrixdotorg/dendrite:v0.15.2
 
-# Install runtime dependencies
-RUN apk add --no-cache ca-certificates bash wget
+# Create data directories (for persistence)
+RUN mkdir -p /data /data/jetstream /data/media_store /data/logs
 
-# Set working directory for HA data
+# Copy run script
+COPY run.sh /run.sh
+RUN chmod +x /run.sh
+
 WORKDIR /data
 
-# Download Dendrite monolith server for the architecture
-RUN if [ "$ARCH" = "arm64" ]; then \
-        wget -O /usr/bin/dendrite-monolith-server https://github.com/matrix-org/dendrite/releases/download/v0.11.2/dendrite-monolith-server-linux-arm64; \
-    else \
-        wget -O /usr/bin/dendrite-monolith-server https://github.com/matrix-org/dendrite/releases/download/v0.11.2/dendrite-monolith-server-linux-amd64; \
-    fi \
-    && chmod +x /usr/bin/dendrite-monolith-server
-
-# Create required directories
-RUN mkdir -p /data/jetstream /data/media_store /data/logs
-
-ENTRYPOINT ["/usr/bin/dendrite-monolith-server"]
+# Use run.sh as entrypoint
+ENTRYPOINT ["/run.sh"]

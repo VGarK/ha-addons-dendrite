@@ -1,9 +1,8 @@
-name: Build and Publish Dendrite Add-on
+name: Build and Publish Dendrite Add-on Image
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
@@ -14,38 +13,28 @@ jobs:
       packages: write
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
-      - name: Set up Docker Buildx
+      - name: Set up Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Log in to GitHub Container Registry
+      - name: Log in to GHCR
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker images
+      - name: Build & push image
         uses: docker/build-push-action@v4
         with:
           context: ./dendrite
           push: true
           platforms: linux/amd64,linux/arm64
-          build-args: |
-            ARCH=amd64
-          tags: ghcr.io/vgark/ha-addons-dendrite/dendrite-amd64:latest
-
-      - name: Build and push ARM image
-        uses: docker/build-push-action@v4
-        with:
-          context: ./dendrite
-          push: true
-          platforms: linux/arm64
-          build-args: |
-            ARCH=arm64
-          tags: ghcr.io/vgark/ha-addons-dendrite/dendrite-arm64:latest
+          tags: |
+            ghcr.io/vgark/ha-addons-dendrite/dendrite-amd64:latest
+            ghcr.io/vgark/ha-addons-dendrite/dendrite-arm64:latest

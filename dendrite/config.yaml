@@ -1,14 +1,14 @@
 name: Dendrite Matrix Server
 version: "0.1.0"
 slug: dendrite
-description: "Lightweight Matrix server (Dendrite) add-on"
+description: "Matrix homeserver (Dendrite) add-on"
 url: https://github.com/vgark/ha-addons-dendrite
 arch:
   - amd64
   - aarch64
 startup: services
 boot: auto
-image: matrixdotorg/dendrite:v0.11.2  # <- prebuilt image
+image: ghcr.io/vgark/ha-addons-dendrite/dendrite-{arch}:latest
 ports:
   - 8008/tcp
   - 8448/tcp
@@ -16,12 +16,13 @@ map:
   - config:rw
 options:
   server_name: ""
-  enable_registration: true
+  enable_registration: false
   registration_shared_secret: ""
 schema:
   server_name: str
   enable_registration: bool
   registration_shared_secret: str?
+
 
 
 

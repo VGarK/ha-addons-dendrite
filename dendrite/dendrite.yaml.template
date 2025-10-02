@@ -1,10 +1,20 @@
 version: 2
 global:
-  server_name: __SERVER_NAME__
-  private_key: __PRIVATE_KEY_PATH__
-
-media_api:
-  base_path: /data/media
+  server_name: "__SERVER_NAME__"
+  private_key: "__PRIVATE_KEY_PATH__"
+  report_stats:
+    enabled: false
 
 client_api:
-  registration_disabled: false
+  registration_disabled: __REGISTRATION_DISABLED__
+
+media_api:
+  base_path: "__MEDIA_PATH__"
+
+logging:
+  - type: std
+    level: info
+  - type: file
+    level: info
+    params:
+      path: logs
