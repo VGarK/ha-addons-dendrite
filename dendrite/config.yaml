@@ -1,13 +1,14 @@
 name: Dendrite Matrix Server
 version: "0.1.0"
 slug: dendrite
-description: "Matrix homeserver (Dendrite) add-on"
+description: "Dendrite Matrix homeserver add-on"
 url: https://github.com/vgark/ha-addons-dendrite
 arch:
   - amd64
   - aarch64
 startup: services
 boot: auto
+# HA will replace {arch} with the correct arch (amd64 or aarch64) when pulling
 image: ghcr.io/vgark/ha-addons-dendrite/dendrite-{arch}:latest
 ports:
   - 8008/tcp
@@ -22,6 +23,7 @@ schema:
   server_name: str
   enable_registration: bool
   registration_shared_secret: str?
+
 
 
 
